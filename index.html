@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#000000">
+  <title>Jam AOD • Always On Display</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000000;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    .clock-wrapper {
+      text-align: center;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .time {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(4rem, 16vw, 9rem);
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .colon {
+      margin: 0 0.08em;
+      opacity: 0.75;
+    }
+
+    .seconds {
+      font-size: 0.48em;
+      margin-left: 0.15em;
+      opacity: 0.65;
+      font-weight: 400;
+    }
+
+    .ampm {
+      font-size: 0.32em;
+      margin-left: 0.4em;
+      opacity: 0.75;
+      font-weight: 500;
+      align-self: center;
+    }
+
+    .date {
+      font-size: clamp(1.1rem, 4.2vw, 2.2rem);
+      font-weight: 400;
+      opacity: 0.85;
+      letter-spacing: 0.5px;
+    }
+
+    .battery {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      font-size: 0.95rem;
+      opacity: 0.55;
+      font-weight: 400;
+      z-index: 10;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: rgba(20, 20, 20, 0.85);
+      padding: 8px 12px;
+      border-radius: 50px;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #ffffff;
+      padding: 9px 18px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    button:active {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(0.96);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock-wrapper">
+    <div class="time">
+      <span id="hours">00</span>
+      <span class="colon">:</span>
+      <span id="minutes">00</span>
+      <span id="seconds" class="seconds">:00</span>
+      <span id="ampm" class="ampm"></span>
+    </div>
+    
+    <div id="date" class="date">Senin, 22 Juni 2026</div>
+  </div>
+
+  <!-- Battery indicator -->
+  <div class="battery" id="battery">🔋 --%</div>
+
+  <!-- Controls -->
+  <div class="controls" id="controls">
+    <button id="btn-fullscreen">⛶ Layar Penuh</button>
+    <button id="btn-wakelock">🔒 Jaga Layar Nyala</button>
+    <button id="btn-format">24 Jam</button>
+    <button id="btn-seconds">Sembunyikan Detik</button>
+  </div>
+
+  <script>
+    // Variabel pengaturan
+    let is24Hour = true;
+    let showSeconds = true;
+    let wakeLock = null;
+
+    // Update jam & tanggal
+    function updateClock() {
+      const now = new Date();
+      
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      let seconds = now.getSeconds();
+      let ampmText = '';
+
+      // Format 12 jam
+      if (!is24Hour) {
+        ampmText = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+      }
+
+      // Tampilkan
+      document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+
+      const secondsEl = document.getElementById('seconds');
+      const ampmEl = document.getElementById('ampm');
+
+      if (showSeconds) {
+        secondsEl.style.display = 'inline';
+        secondsEl.textContent = ':' + seconds.toString().padStart(2, '0');
+      } else {
+        secondsEl.style.display = 'none';
+      }
+
+      if (!is24Hour) {
+        ampmEl.style.display = 'inline';
+        ampmEl.textContent = ampmText;
+      } else {
+        ampmEl.style.display = 'none';
+      }
+
+      // Tanggal dalam bahasa Indonesia
+      document.getElementById('date').textContent = now.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    // Battery Status API
+    function initBattery() {
+      const batteryEl = document.getElementById('battery');
+      
+      if ('getBattery' in navigator) {
+        navigator.getBattery().then(battery => {
+          function updateBattery() {
+            batteryEl.textContent = `🔋 ${Math.round(battery.level * 100)}%`;
+          }
+          updateBattery();
+          battery.addEventListener('levelchange', updateBattery);
+        }).catch(() => {
+          batteryEl.style.display = 'none';
+        });
+      } else {
+        batteryEl.style.display = 'none';
+      }
+    }
+
+    // Wake Lock (kunci utama biar layar tetap nyala)
+    async function toggleWakeLock() {
+      const btn = document.getElementById('btn-wakelock');
+
+      if (!('wakeLock' in navigator)) {
+        alert('Browser ini belum support fitur "Jaga Layar Nyala".\nCoba pakai Chrome versi terbaru.');
+        return;
+      }
+
+      try {
+        if (wakeLock === null) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          btn.textContent = '🔓 Matikan Wake Lock';
+          btn.style.background = 'rgba(0, 200, 83, 0.2)';
+          
+          wakeLock.addEventListener('release', () => {
+            wakeLock = null;
+            btn.textContent = '🔒 Jaga Layar Nyala';
+            btn.style.background = 'rgba(255,255,255,0.1)';
+          });
+        } else {
+          await wakeLock.release();
+          wakeLock = null;
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Gagal mengaktifkan Wake Lock. Coba tekan tombol Fullscreen dulu.');
+      }
+    }
+
+    // Fullscreen
+    function toggleFullscreen() {
+      const doc = document.documentElement;
+      const isFull = document.fullscreenElement || document.webkitFullscreenElement;
+
+      if (!isFull) {
+        if (doc.requestFullscreen) doc.requestFullscreen();
+        else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    }
+
+    // Toggle format jam
+    function toggleFormat() {
+      is24Hour = !is24Hour;
+      updateClock();
+      const btn = document.getElementById('btn-format');
+      btn.textContent = is24Hour ? '24 Jam' : '12 Jam';
+    }
+
+    // Toggle detik
+    function toggleSeconds() {
+      showSeconds = !showSeconds;
+      updateClock();
+      const btn = document.getElementById('btn-seconds');
+      btn.textContent = showSeconds ? 'Sembunyikan Detik' : 'Tampilkan Detik';
+    }
+
+    // Inisialisasi
+    function init() {
+      updateClock();
+      setInterval(updateClock, 1000); // Update tiap detik
+
+      initBattery();
+
+      // Event listener tombol
+      document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
+      document.getElementById('btn-wakelock').addEventListener('click', toggleWakeLock);
+      document.getElementById('btn-format').addEventListener('click', toggleFormat);
+      document.getElementById('btn-seconds').addEventListener('click', toggleSeconds);
+
+      // Update teks tombol awal
+      document.getElementById('btn-format').textContent = is24Hour ? '24 Jam' : '12 Jam';
+      document.getElementById('btn-seconds').textContent = showSeconds ? 'Sembunyikan Detik' : 'Tampilkan Detik';
+
+      // Auto update fullscreen button text (opsional)
+      document.addEventListener('fullscreenchange', () => {
+        const btn = document.getElementById('btn-fullscreen');
+        btn.textContent = document.fullscreenElement ? '⛶ Keluar Layar Penuh' : '⛶ Layar Penuh';
+      });
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
