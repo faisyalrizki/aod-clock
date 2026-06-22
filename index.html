@@ -2,225 +2,159 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#000000">
   <title>Jam AOD</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
-      background: #000;
+      background: #0a0a0a;
       color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       height: 100dvh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 60px;
       overflow: hidden;
       padding: 20px;
     }
 
-    .time {
-      font-size: clamp(4.5rem, 14vw, 7rem);
-      font-weight: 300;
-      letter-spacing: -0.04em;
-      line-height: 1;
+    .analog {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      border: 16px solid #222;
+      border-radius: 50%;
+      background: #111;
     }
 
-    .seconds { 
-      font-size: 0.42em; 
-      opacity: 0.75; 
-      margin-left: 0.1em; 
+    .number {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: #ccc;
     }
 
-    .date {
-      font-size: clamp(1.3rem, 5vw, 2rem);
-      opacity: 0.85;
+    .hand {
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      transform-origin: bottom center;
+      border-radius: 999px;
+    }
+
+    .hour-hand   { width: 8px; height: 80px; background: #eee; margin-left: -4px; }
+    .minute-hand { width: 5px; height: 105px; background: #eee; margin-left: -2.5px; }
+    .second-hand { width: 3px; height: 115px; background: #ff4757; margin-left: -1.5px; }
+
+    .center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border: 3px solid #111;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    .calendar {
+      background: #111;
+      padding: 30px 35px;
+      border-radius: 28px;
+      text-align: center;
+      min-width: 240px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+    }
+
+    .month {
+      color: #ff4757;
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+
+    .day {
+      font-size: 7rem;
+      font-weight: 200;
+      line-height: 0.9;
+    }
+
+    .weekday {
+      font-size: 1.8rem;
       margin-top: 10px;
     }
 
-    /* Floating Button */
-    .fab {
-      position: fixed;
-      bottom: 30px;
-      left: 30px;
-      background: rgba(255,255,255,0.15);
-      color: white;
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      z-index: 100;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-    }
-
-    /* Menu */
-    .menu {
-      position: fixed;
-      bottom: 110px;
-      left: 30px;
-      background: rgba(30,30,30,0.95);
-      border-radius: 16px;
-      padding: 8px 0;
-      display: none;
-      flex-direction: column;
-      gap: 4px;
-      z-index: 90;
-      min-width: 200px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-
-    .menu button {
-      padding: 14px 20px;
-      background: transparent;
-      border: none;
-      color: white;
-      text-align: left;
-      font-size: 0.95rem;
-      width: 100%;
-    }
-
-    .menu button:active {
-      background: rgba(255,255,255,0.2);
-    }
-
-    .battery {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      font-size: 0.9rem;
-      opacity: 0.6;
+    .year {
+      font-size: 1.2rem;
+      opacity: 0.75;
     }
   </style>
 </head>
 <body>
-  <div class="time" id="time">
-    00:00<span id="seconds" class="seconds">:00</span>
-    <span id="ampm" class="ampm"></span>
+  <!-- Analog Clock -->
+  <div class="analog" id="analog">
+    <!-- Numbers -->
+    <div class="number" style="transform: rotate(30deg);"><div style="transform: rotate(-30deg);">1</div></div>
+    <div class="number" style="transform: rotate(60deg);"><div style="transform: rotate(-60deg);">2</div></div>
+    <div class="number" style="transform: rotate(90deg);"><div style="transform: rotate(-90deg);">3</div></div>
+    <div class="number" style="transform: rotate(120deg);"><div style="transform: rotate(-120deg);">4</div></div>
+    <div class="number" style="transform: rotate(150deg);"><div style="transform: rotate(-150deg);">5</div></div>
+    <div class="number" style="transform: rotate(180deg);"><div style="transform: rotate(-180deg);">6</div></div>
+    <div class="number" style="transform: rotate(210deg);"><div style="transform: rotate(-210deg);">7</div></div>
+    <div class="number" style="transform: rotate(240deg);"><div style="transform: rotate(-240deg);">8</div></div>
+    <div class="number" style="transform: rotate(270deg);"><div style="transform: rotate(-270deg);">9</div></div>
+    <div class="number" style="transform: rotate(300deg);"><div style="transform: rotate(-300deg);">10</div></div>
+    <div class="number" style="transform: rotate(330deg);"><div style="transform: rotate(-330deg);">11</div></div>
+    <div class="number" style="transform: rotate(0deg);"><div style="transform: rotate(0deg);">12</div></div>
+
+    <div class="hand hour-hand" id="hour"></div>
+    <div class="hand minute-hand" id="minute"></div>
+    <div class="hand second-hand" id="second"></div>
+    <div class="center"></div>
   </div>
-  <div id="date" class="date">Senin, 22 Juni 2026</div>
 
-  <!-- Battery -->
-  <div class="battery" id="battery">🔋 --%</div>
-
-  <!-- Floating Button -->
-  <div class="fab" id="fab">⚙️</div>
-
-  <!-- Menu -->
-  <div class="menu" id="menu">
-    <button onclick="toggleFullscreen()">⛶ Layar Penuh</button>
-    <button onclick="toggleWakeLock()">🔒 Jaga Layar Nyala</button>
-    <button onclick="toggleFormat()">24 Jam / 12 Jam</button>
-    <button onclick="toggleSeconds()">Sembunyikan Detik</button>
+  <!-- Calendar -->
+  <div class="calendar">
+    <div class="month" id="month">JUNI</div>
+    <div class="day" id="day">22</div>
+    <div class="weekday" id="weekday">SENIN</div>
+    <div class="year" id="year">2026</div>
   </div>
 
   <script>
-    let is24Hour = true;
-    let showSeconds = true;
-    let wakeLock = null;
-
     function updateClock() {
       const now = new Date();
-      let hours = now.getHours();
-      let ampmText = '';
 
-      if (!is24Hour) {
-        ampmText = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12;
-      }
+      const seconds = now.getSeconds();
+      const minutes = now.getMinutes();
+      const hours = now.getHours();
 
-      const hStr = hours.toString().padStart(2, '0');
-      const mStr = now.getMinutes().toString().padStart(2, '0');
-      const sStr = now.getSeconds().toString().padStart(2, '0');
+      const secondDeg = seconds * 6;
+      const minuteDeg = minutes * 6 + seconds * 0.1;
+      const hourDeg = (hours % 12) * 30 + minutes * 0.5;
 
-      document.getElementById('time').childNodes[0].nodeValue = hStr + ':' + mStr;
-      
-      const secEl = document.getElementById('seconds');
-      secEl.textContent = ':' + sStr;
-      secEl.style.display = showSeconds ? 'inline' : 'none';
+      document.getElementById('second').style.transform = `rotate(${secondDeg}deg)`;
+      document.getElementById('minute').style.transform = `rotate(${minuteDeg}deg)`;
+      document.getElementById('hour').style.transform = `rotate(${hourDeg}deg)`;
 
-      document.getElementById('ampm').textContent = !is24Hour ? ampmText : '';
-
-      document.getElementById('date').textContent = now.toLocaleDateString('id-ID', {
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-      });
+      // Calendar
+      document.getElementById('month').textContent = now.toLocaleString('id-ID', {month: 'long'}).toUpperCase();
+      document.getElementById('day').textContent = now.getDate();
+      document.getElementById('weekday').textContent = now.toLocaleString('id-ID', {weekday: 'long'}).toUpperCase();
+      document.getElementById('year').textContent = now.getFullYear();
     }
 
-    // Battery
-    function initBattery() {
-      if ('getBattery' in navigator) {
-        navigator.getBattery().then(b => {
-          const el = document.getElementById('battery');
-          const update = () => el.textContent = `🔋 ${Math.round(b.level*100)}%`;
-          update();
-          b.addEventListener('levelchange', update);
-        });
-      }
-    }
-
-    // Fullscreen
-    function toggleFullscreen() {
-      const d = document.documentElement;
-      if (!document.fullscreenElement) {
-        d.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen();
-      }
-    }
-
-    // Wake Lock
-    async function toggleWakeLock() {
-      if (!('wakeLock' in navigator)) return alert('Tidak didukung');
-      try {
-        if (wakeLock) {
-          await wakeLock.release();
-          wakeLock = null;
-        } else {
-          wakeLock = await navigator.wakeLock.request('screen');
-        }
-      } catch(e) {}
-    }
-
-    function toggleFormat() {
-      is24Hour = !is24Hour;
-      updateClock();
-    }
-
-    function toggleSeconds() {
-      showSeconds = !showSeconds;
-      updateClock();
-      const btn = document.querySelector('button[onclick="toggleSeconds()"]');
-      btn.textContent = showSeconds ? 'Sembunyikan Detik' : 'Tampilkan Detik';
-    }
-
-    // Menu toggle
-    const fab = document.getElementById('fab');
-    const menu = document.getElementById('menu');
-
-    fab.addEventListener('click', () => {
-      menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!fab.contains(e.target) && !menu.contains(e.target)) {
-        menu.style.display = 'none';
-      }
-    });
-
-    // Init
-    function init() {
-      updateClock();
-      setInterval(updateClock, 1000);
-      initBattery();
-    }
-
-    window.onload = init;
+    setInterval(updateClock, 1000);
+    updateClock();
   </script>
 </body>
 </html>
