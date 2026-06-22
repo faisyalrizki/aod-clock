@@ -4,285 +4,220 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#000000">
-  <title>Jam AOD • Always On Display</title>
+  <title>Jam AOD</title>
   <style>
-    * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+    * { margin:0; padding:0; box-sizing:border-box; }
 
-  body {
-    background: #000000;
-    color: #ffffff;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    height: 100dvh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    touch-action: manipulation;
-  }
+    body {
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 20px;
+    }
 
-  .clock-wrapper {
-    text-align: center;
-    width: 100%;
-    padding: 20px;
-    max-width: 100%;
-  }
+    .time {
+      font-size: clamp(4.5rem, 14vw, 7rem);
+      font-weight: 300;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
 
-  .time {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(3.5rem, 13vw, 7rem);   /* diatur khusus iPhone */
-    font-weight: 300;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    margin-bottom: 15px;
-  }
+    .seconds { 
+      font-size: 0.42em; 
+      opacity: 0.75; 
+      margin-left: 0.1em; 
+    }
 
-  .colon {
-    margin: 0 0.05em;
-    opacity: 0.8;
-  }
+    .date {
+      font-size: clamp(1.3rem, 5vw, 2rem);
+      opacity: 0.85;
+      margin-top: 10px;
+    }
 
-  .seconds {
-    font-size: 0.45em;
-    margin-left: 0.1em;
-    opacity: 0.7;
-  }
+    /* Floating Button */
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
 
-  .ampm {
-    font-size: 0.35em;
-    margin-left: 0.4em;
-    opacity: 0.8;
-  }
+    /* Menu */
+    .menu {
+      position: fixed;
+      bottom: 110px;
+      left: 30px;
+      background: rgba(30,30,30,0.95);
+      border-radius: 16px;
+      padding: 8px 0;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 90;
+      min-width: 200px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
 
-  .date {
-    font-size: clamp(1.1rem, 5vw, 1.8rem);
-    font-weight: 400;
-    opacity: 0.85;
-    margin-bottom: 30px;
-  }
+    .menu button {
+      padding: 14px 20px;
+      background: transparent;
+      border: none;
+      color: white;
+      text-align: left;
+      font-size: 0.95rem;
+      width: 100%;
+    }
 
-  .battery {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    font-size: 0.9rem;
-    opacity: 0.6;
-    z-index: 10;
-  }
+    .menu button:active {
+      background: rgba(255,255,255,0.2);
+    }
 
-  .controls {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    background: rgba(30, 30, 30, 0.9);
-    padding: 10px;
-    border-radius: 50px;
-    z-index: 20;
-    max-width: 95%;
-  }
-
-  button {
-    background: rgba(255, 255, 255, 0.12);
-    border: none;
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 30px;
-    font-size: 0.78rem;
-    white-space: nowrap;
-  }
-
-  button:active {
-    background: rgba(255, 255, 255, 0.3);
-  }
+    .battery {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
   </style>
 </head>
 <body>
-  <div class="clock-wrapper">
-    <div class="time">
-      <span id="hours">00</span>
-      <span class="colon">:</span>
-      <span id="minutes">00</span>
-      <span id="seconds" class="seconds">:00</span>
-      <span id="ampm" class="ampm"></span>
-    </div>
-    
-    <div id="date" class="date">Senin, 22 Juni 2026</div>
+  <div class="time" id="time">
+    00:00<span id="seconds" class="seconds">:00</span>
+    <span id="ampm" class="ampm"></span>
   </div>
+  <div id="date" class="date">Senin, 22 Juni 2026</div>
 
-  <!-- Battery indicator -->
+  <!-- Battery -->
   <div class="battery" id="battery">🔋 --%</div>
 
-  <!-- Controls -->
-  <div class="controls" id="controls">
-    <button id="btn-fullscreen">⛶ Layar Penuh</button>
-    <button id="btn-wakelock">🔒 Jaga Layar Nyala</button>
-    <button id="btn-format">24 Jam</button>
-    <button id="btn-seconds">Sembunyikan Detik</button>
+  <!-- Floating Button -->
+  <div class="fab" id="fab">⚙️</div>
+
+  <!-- Menu -->
+  <div class="menu" id="menu">
+    <button onclick="toggleFullscreen()">⛶ Layar Penuh</button>
+    <button onclick="toggleWakeLock()">🔒 Jaga Layar Nyala</button>
+    <button onclick="toggleFormat()">24 Jam / 12 Jam</button>
+    <button onclick="toggleSeconds()">Sembunyikan Detik</button>
   </div>
 
   <script>
-    // Variabel pengaturan
     let is24Hour = true;
     let showSeconds = true;
     let wakeLock = null;
 
-    // Update jam & tanggal
     function updateClock() {
       const now = new Date();
-      
       let hours = now.getHours();
-      let minutes = now.getMinutes();
-      let seconds = now.getSeconds();
       let ampmText = '';
 
-      // Format 12 jam
       if (!is24Hour) {
         ampmText = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12 || 12;
       }
 
-      // Tampilkan
-      document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+      const hStr = hours.toString().padStart(2, '0');
+      const mStr = now.getMinutes().toString().padStart(2, '0');
+      const sStr = now.getSeconds().toString().padStart(2, '0');
 
-      const secondsEl = document.getElementById('seconds');
-      const ampmEl = document.getElementById('ampm');
+      document.getElementById('time').childNodes[0].nodeValue = hStr + ':' + mStr;
+      
+      const secEl = document.getElementById('seconds');
+      secEl.textContent = ':' + sStr;
+      secEl.style.display = showSeconds ? 'inline' : 'none';
 
-      if (showSeconds) {
-        secondsEl.style.display = 'inline';
-        secondsEl.textContent = ':' + seconds.toString().padStart(2, '0');
-      } else {
-        secondsEl.style.display = 'none';
-      }
+      document.getElementById('ampm').textContent = !is24Hour ? ampmText : '';
 
-      if (!is24Hour) {
-        ampmEl.style.display = 'inline';
-        ampmEl.textContent = ampmText;
-      } else {
-        ampmEl.style.display = 'none';
-      }
-
-      // Tanggal dalam bahasa Indonesia
       document.getElementById('date').textContent = now.toLocaleDateString('id-ID', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
       });
     }
 
-    // Battery Status API
+    // Battery
     function initBattery() {
-      const batteryEl = document.getElementById('battery');
-      
       if ('getBattery' in navigator) {
-        navigator.getBattery().then(battery => {
-          function updateBattery() {
-            batteryEl.textContent = `🔋 ${Math.round(battery.level * 100)}%`;
-          }
-          updateBattery();
-          battery.addEventListener('levelchange', updateBattery);
-        }).catch(() => {
-          batteryEl.style.display = 'none';
+        navigator.getBattery().then(b => {
+          const el = document.getElementById('battery');
+          const update = () => el.textContent = `🔋 ${Math.round(b.level*100)}%`;
+          update();
+          b.addEventListener('levelchange', update);
         });
-      } else {
-        batteryEl.style.display = 'none';
-      }
-    }
-
-    // Wake Lock (kunci utama biar layar tetap nyala)
-    async function toggleWakeLock() {
-      const btn = document.getElementById('btn-wakelock');
-
-      if (!('wakeLock' in navigator)) {
-        alert('Browser ini belum support fitur "Jaga Layar Nyala".\nCoba pakai Chrome versi terbaru.');
-        return;
-      }
-
-      try {
-        if (wakeLock === null) {
-          wakeLock = await navigator.wakeLock.request('screen');
-          btn.textContent = '🔓 Matikan Wake Lock';
-          btn.style.background = 'rgba(0, 200, 83, 0.2)';
-          
-          wakeLock.addEventListener('release', () => {
-            wakeLock = null;
-            btn.textContent = '🔒 Jaga Layar Nyala';
-            btn.style.background = 'rgba(255,255,255,0.1)';
-          });
-        } else {
-          await wakeLock.release();
-          wakeLock = null;
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Gagal mengaktifkan Wake Lock. Coba tekan tombol Fullscreen dulu.');
       }
     }
 
     // Fullscreen
     function toggleFullscreen() {
-      const doc = document.documentElement;
-      const isFull = document.fullscreenElement || document.webkitFullscreenElement;
-
-      if (!isFull) {
-        if (doc.requestFullscreen) doc.requestFullscreen();
-        else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+      const d = document.documentElement;
+      if (!document.fullscreenElement) {
+        d.requestFullscreen().catch(() => {});
       } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        document.exitFullscreen();
       }
     }
 
-    // Toggle format jam
+    // Wake Lock
+    async function toggleWakeLock() {
+      if (!('wakeLock' in navigator)) return alert('Tidak didukung');
+      try {
+        if (wakeLock) {
+          await wakeLock.release();
+          wakeLock = null;
+        } else {
+          wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch(e) {}
+    }
+
     function toggleFormat() {
       is24Hour = !is24Hour;
       updateClock();
-      const btn = document.getElementById('btn-format');
-      btn.textContent = is24Hour ? '24 Jam' : '12 Jam';
     }
 
-    // Toggle detik
     function toggleSeconds() {
       showSeconds = !showSeconds;
       updateClock();
-      const btn = document.getElementById('btn-seconds');
+      const btn = document.querySelector('button[onclick="toggleSeconds()"]');
       btn.textContent = showSeconds ? 'Sembunyikan Detik' : 'Tampilkan Detik';
     }
 
-    // Inisialisasi
+    // Menu toggle
+    const fab = document.getElementById('fab');
+    const menu = document.getElementById('menu');
+
+    fab.addEventListener('click', () => {
+      menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!fab.contains(e.target) && !menu.contains(e.target)) {
+        menu.style.display = 'none';
+      }
+    });
+
+    // Init
     function init() {
       updateClock();
-      setInterval(updateClock, 1000); // Update tiap detik
-
+      setInterval(updateClock, 1000);
       initBattery();
-
-      // Event listener tombol
-      document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
-      document.getElementById('btn-wakelock').addEventListener('click', toggleWakeLock);
-      document.getElementById('btn-format').addEventListener('click', toggleFormat);
-      document.getElementById('btn-seconds').addEventListener('click', toggleSeconds);
-
-      // Update teks tombol awal
-      document.getElementById('btn-format').textContent = is24Hour ? '24 Jam' : '12 Jam';
-      document.getElementById('btn-seconds').textContent = showSeconds ? 'Sembunyikan Detik' : 'Tampilkan Detik';
-
-      // Auto update fullscreen button text (opsional)
-      document.addEventListener('fullscreenchange', () => {
-        const btn = document.getElementById('btn-fullscreen');
-        btn.textContent = document.fullscreenElement ? '⛶ Keluar Layar Penuh' : '⛶ Layar Penuh';
-      });
     }
 
     window.onload = init;
