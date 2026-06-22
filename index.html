@@ -2,8 +2,9 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#000000">
   <title>Jam AOD</title>
   <style>
@@ -14,21 +15,23 @@
       color: #fff;
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       height: 100dvh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 60px;
+      gap: 50px;
       overflow: hidden;
       padding: 20px;
     }
 
     .analog {
       position: relative;
-      width: 280px;
-      height: 280px;
+      width: 270px;
+      height: 270px;
       border: 16px solid #222;
       border-radius: 50%;
       background: #111;
+      flex-shrink: 0;
     }
 
     .number {
@@ -36,7 +39,7 @@
       width: 100%;
       height: 100%;
       text-align: center;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       font-weight: 400;
       color: #ccc;
     }
@@ -49,9 +52,9 @@
       border-radius: 999px;
     }
 
-    .hour-hand   { width: 8px; height: 80px; background: #eee; margin-left: -4px; }
-    .minute-hand { width: 5px; height: 105px; background: #eee; margin-left: -2.5px; }
-    .second-hand { width: 3px; height: 115px; background: #ff4757; margin-left: -1.5px; }
+    .hour-hand   { width: 8px; height: 78px; background: #eee; margin-left: -4px; }
+    .minute-hand { width: 5px; height: 102px; background: #eee; margin-left: -2.5px; }
+    .second-hand { width: 3px; height: 112px; background: #ff4757; margin-left: -1.5px; }
 
     .center {
       position: absolute;
@@ -68,41 +71,40 @@
 
     .calendar {
       background: #111;
-      padding: 30px 35px;
+      padding: 28px 32px;
       border-radius: 28px;
       text-align: center;
-      min-width: 240px;
+      min-width: 230px;
       box-shadow: 0 15px 40px rgba(0,0,0,0.7);
     }
 
     .month {
       color: #ff4757;
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       letter-spacing: 3px;
       margin-bottom: 8px;
     }
 
     .day {
-      font-size: 7rem;
+      font-size: 6.8rem;
       font-weight: 200;
-      line-height: 0.9;
+      line-height: 0.85;
     }
 
     .weekday {
-      font-size: 1.8rem;
-      margin-top: 10px;
+      font-size: 1.75rem;
+      margin-top: 8px;
     }
 
     .year {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       opacity: 0.75;
     }
   </style>
 </head>
 <body>
-  <!-- Analog Clock -->
   <div class="analog" id="analog">
-    <!-- Numbers -->
+    <!-- Numbers 1-12 -->
     <div class="number" style="transform: rotate(30deg);"><div style="transform: rotate(-30deg);">1</div></div>
     <div class="number" style="transform: rotate(60deg);"><div style="transform: rotate(-60deg);">2</div></div>
     <div class="number" style="transform: rotate(90deg);"><div style="transform: rotate(-90deg);">3</div></div>
@@ -122,7 +124,6 @@
     <div class="center"></div>
   </div>
 
-  <!-- Calendar -->
   <div class="calendar">
     <div class="month" id="month">JUNI</div>
     <div class="day" id="day">22</div>
@@ -134,22 +135,17 @@
     function updateClock() {
       const now = new Date();
 
-      const seconds = now.getSeconds();
-      const minutes = now.getMinutes();
-      const hours = now.getHours();
+      const secDeg = now.getSeconds() * 6;
+      const minDeg = now.getMinutes() * 6 + secDeg / 60;
+      const hrDeg  = (now.getHours() % 12) * 30 + minDeg / 12;
 
-      const secondDeg = seconds * 6;
-      const minuteDeg = minutes * 6 + seconds * 0.1;
-      const hourDeg = (hours % 12) * 30 + minutes * 0.5;
+      document.getElementById('second').style.transform = `rotate(${secDeg}deg)`;
+      document.getElementById('minute').style.transform = `rotate(${minDeg}deg)`;
+      document.getElementById('hour').style.transform = `rotate(${hrDeg}deg)`;
 
-      document.getElementById('second').style.transform = `rotate(${secondDeg}deg)`;
-      document.getElementById('minute').style.transform = `rotate(${minuteDeg}deg)`;
-      document.getElementById('hour').style.transform = `rotate(${hourDeg}deg)`;
-
-      // Calendar
-      document.getElementById('month').textContent = now.toLocaleString('id-ID', {month: 'long'}).toUpperCase();
+      document.getElementById('month').textContent = now.toLocaleString('id-ID', {month:'long'}).toUpperCase();
       document.getElementById('day').textContent = now.getDate();
-      document.getElementById('weekday').textContent = now.toLocaleString('id-ID', {weekday: 'long'}).toUpperCase();
+      document.getElementById('weekday').textContent = now.toLocaleString('id-ID', {weekday:'long'}).toUpperCase();
       document.getElementById('year').textContent = now.getFullYear();
     }
 
